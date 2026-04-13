@@ -1,0 +1,180 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PACT Calculator - Exportable Version</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- React & ReactDOM CDN -->
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <!-- Babel for JSX -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-[#F1F5F9]">
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useMemo, useEffect } = React;
+
+        // Custom Icon Component to handle Lucide in React CDN
+        const Icon = ({ name, size = 18, className = "" }) => {
+            useEffect(() => {
+                if (window.lucide) {
+                    window.lucide.createIcons();
+                }
+            }, [name]);
+            return <i data-lucide={name} style={{ width: size, height: size }} className={className}></i>;
+        };
+
+        const App = () => {
+            const [selections, setSelections] = useState({
+                pain: null,
+                authority: null,
+                capital: null,
+                timeline: null
+            });
+
+            const pactData = {
+                pain: [
+                    { id: 'p1', label: 'Validated pain / Current challenge articulated', points: 35 },
+                    { id: 'p2', label: 'No clear pain / Just exploring', points: 0 }
+                ],
+                authority: [
+                    { id: 'a1', label: 'C-Level', points: 20 },
+                    { id: 'a2', label: 'Vice President', points: 16 },
+                    { id: 'a3', label: 'Director', points: 12 },
+                    { id: 'a4', label: 'Head', points: 8 },
+                    { id: 'a5', label: 'Manager', points: 4 }
+                ],
+                capital: [
+                    { id: 'c1', label: 'Confirmed budget or formal project in place', points: 20 },
+                    { id: 'c2', label: 'No budget / Uncertain', points: 0 }
+                ],
+                timeline: [
+                    { id: 't1', label: '0 to 3 months', points: 25 },
+                    { id: 't2', label: '3 to 6 months', points: 15 },
+                    { id: 't3', label: '6 to 12 months', points: 5 },
+                    { id: 't4', label: 'Over 12 months / No clear timeline', points: 0 }
+                ]
+            };
+
+            const scoreMetrics = useMemo(() => {
+                let total = 0;
+                if (selections.pain !== null) total += pactData.pain.find(o => o.id === selections.pain).points;
+                if (selections.authority !== null) total += pactData.authority.find(o => o.id === selections.authority).points;
+                if (selections.capital !== null) total += pactData.capital.find(o => o.id === selections.capital).points;
+                if (selections.timeline !== null) total += pactData.timeline.find(o => o.id === selections.timeline).points;
+
+                let tier = { label: 'Incomplete', color: 'text-gray-400', bg: 'bg-gray-50' };
+                
+                if (selections.pain === 'p2' || (selections.pain !== null && total === 0)) {
+                    tier = { label: '❌ DISQUALIFIED (No Pain)', color: 'text-red-700', bg: 'bg-red-50' };
+                } else if (selections.pain === 'p1') {
+                    if (total >= 90) tier = { label: '🚀 SQL TIER 1: Slam Dunk', color: 'text-[#0F172A]', bg: 'bg-blue-50' };
+                    else if (total >= 75) tier = { label: '🔥 SQL TIER 2: Hot Lead', color: 'text-orange-700', bg: 'bg-orange-50' };
+                    else if (total >= 56) tier = { label: '📈 SQL TIER 3: Active Project', color: 'text-blue-700', bg: 'bg-blue-50' };
+                    else if (total >= 44) tier = { label: '🌱 SQL TIER 4: Early Stage', color: 'text-emerald-700', bg: 'bg-emerald-50' };
+                    else if (total >= 39) tier = { label: '📞 Connected Meeting (CM)', color: 'text-slate-700', bg: 'bg-slate-100' };
+                    else tier = { label: '⚠️ LOW PRIORITY', color: 'text-gray-600', bg: 'bg-gray-50' };
+                }
+                return { total, tier };
+            }, [selections]);
+
+            return (
+                <div className="min-h-screen pb-20">
+                    <nav className="bg-[#0F172A] text-white py-5 px-10 flex justify-between items-center sticky top-0 z-50 shadow-lg">
+                        <div className="flex items-center gap-3">
+                            <Icon name="calculator" size={24} className="text-white" />
+                            <span className="font-bold tracking-widest text-xl uppercase">PACT <span className="text-slate-400 font-light">Simulator</span></span>
+                        </div>
+                    </nav>
+
+                    <main className="max-w-5xl mx-auto px-6 mt-12">
+                        <div className="bg-white p-10 rounded-xl shadow-sm border border-slate-200 mb-10">
+                            <div className="border-l-4 border-[#0F172A] pl-6 mb-8">
+                                <h1 className="text-4xl font-black text-slate-900 tracking-tight uppercase">PACT Simulator</h1>
+                            </div>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
+                                <p className="text-slate-600 text-sm leading-relaxed">
+                                    Strategic qualification framework based on <strong>Pain, Authority, Capital, and Timeline</strong>.
+                                </p>
+                                <div className="bg-slate-50 p-6 rounded-lg border border-slate-100 grid grid-cols-4 gap-2 text-center">
+                                    {['P', 'A', 'C', 'T'].map((l, i) => (
+                                        <div key={l}><span className="block font-bold text-[#0F172A] text-2xl">{l}</span></div>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+                            <div className="lg:col-span-2 space-y-10">
+                                <Module icon="target" title="Category: Pain Point" data={pactData.pain} selections={selections} setSelections={setSelections} type="pain" />
+                                <Module icon="user-check" title="Category: Authority" data={pactData.authority} selections={selections} setSelections={setSelections} type="authority" />
+                                <Module icon="dollar-sign" title="Category: Capital" data={pactData.capital} selections={selections} setSelections={setSelections} type="capital" />
+                                <Module icon="clock" title="Category: Timeline" data={pactData.timeline} selections={selections} setSelections={setSelections} type="timeline" />
+                            </div>
+
+                            <div className="space-y-6 sticky top-32">
+                                <div className="bg-white rounded-xl shadow-xl overflow-hidden border border-slate-200">
+                                    <div className="p-8 bg-[#0F172A] text-white text-center">
+                                        <span className="text-[10px] font-bold uppercase tracking-[0.4em] text-slate-400 block mb-4">Current Valuation</span>
+                                        <div className="text-7xl font-black mb-2">{scoreMetrics.total}</div>
+                                        <span className="text-slate-500 font-bold uppercase text-[10px] tracking-widest">Aggregate Points</span>
+                                    </div>
+                                    <div className={`p-8 text-center border-b ${scoreMetrics.tier.bg}`}>
+                                        <div className={`text-lg font-black uppercase tracking-tight ${scoreMetrics.tier.color}`}>{scoreMetrics.tier.label}</div>
+                                    </div>
+                                    <div className="p-6">
+                                        <button onClick={() => setSelections({pain: null, authority: null, capital: null, timeline: null})} className="w-full py-3 bg-[#0F172A] text-white text-[10px] font-bold uppercase tracking-widest rounded hover:bg-slate-800 transition-all">Reset</button>
+                                    </div>
+                                </div>
+
+                                <div className="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
+                                    <div className="bg-slate-800 text-white px-5 py-3 text-[10px] font-bold uppercase tracking-widest">Classification Table</div>
+                                    <table className="w-full text-left text-[11px]">
+                                        <tbody className="divide-y divide-slate-100">
+                                            <tr><td className="px-4 py-2">90 - 100</td><td className="px-4 py-2 font-bold text-[#0F172A]">🚀 SQL TIER 1: Slam Dunk</td></tr>
+                                            <tr><td className="px-4 py-2">75 - 89</td><td className="px-4 py-2 font-bold text-orange-600">🔥 SQL TIER 2: Hot Lead</td></tr>
+                                            <tr><td className="px-4 py-2">56 - 74</td><td className="px-4 py-2 font-bold text-blue-700">📈 SQL TIER 3: Active Project</td></tr>
+                                            <tr><td className="px-4 py-2">44 - 55</td><td className="px-4 py-2 font-bold text-emerald-700">🌱 SQL TIER 4: Early Stage</td></tr>
+                                            <tr><td className="px-4 py-2">39 - 43</td><td className="px-4 py-2 font-bold text-slate-700">📞 Connected Meeting (CM)</td></tr>
+                                            <tr className="bg-red-50"><td className="px-4 py-2">0</td><td className="px-4 py-2 font-bold text-red-700">❌ DISQUALIFIED</td></tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </main>
+                </div>
+            );
+        };
+
+        const Module = ({ icon, title, data, selections, setSelections, type }) => (
+            <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+                <div className="bg-[#0F172A] px-6 py-4 flex items-center gap-3 text-white border-b border-slate-700">
+                    <Icon name={icon} />
+                    <h3 className="text-xs font-black uppercase tracking-[0.2em]">{title}</h3>
+                </div>
+                <div className="divide-y divide-slate-100">
+                    {data.map(item => (
+                        <div key={item.id} onClick={() => setSelections(s => ({...s, [type]: item.id}))} className={`px-6 py-4 flex justify-between cursor-pointer ${selections[type] === item.id ? 'bg-blue-50 border-l-4 border-[#0F172A]' : 'hover:bg-slate-50 border-l-4 border-transparent'}`}>
+                            <span className="text-sm font-medium">{item.label}</span>
+                            <span className="text-xs font-black">{item.points} PTS</span>
+                        </div>
+                    ))}
+                </div>
+            </div>
+        );
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
